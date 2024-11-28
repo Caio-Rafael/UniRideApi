@@ -24,7 +24,7 @@ def create_user():
         db.session.commit()
         return jsonify(new_user.as_dict()), 201
     except Exception as e:
-        db.session.rollback()  # Rollback em caso de erro
+        db.session.rollback() 
         return jsonify({"error": str(e)}), 400
 
 # Deletar usuários por id
