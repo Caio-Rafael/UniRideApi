@@ -12,10 +12,10 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app_database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
-    
+    migrate.init_app(app, db)
+
     with app.app_context():
         from app import models
-        db.create_all()
 
     # Registrando as rotas
     from app.routes import routes
