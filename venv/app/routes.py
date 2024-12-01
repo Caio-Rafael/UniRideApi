@@ -70,10 +70,6 @@ def update_carona(id):
 @routes.route('/carona/<int:carona_id>', methods=['DELETE'])
 def delete_carona(carona_id):
     carona = Carona.query.get(carona_id)
-
-    if not carona:
-        return jsonify({"error": "Carona não encontrada"}), 404
-
     db.session.delete(carona)
     db.session.commit()
     return jsonify({"message": "Carona excluída com sucesso"}), 204
@@ -105,23 +101,3 @@ def login():
         print("Usuário não encontrado!")  
     
     return jsonify({"message": "Email ou senha inválidos!"}), 401
-
-#Buscar CEP com API ViaCEP
-@routes.route('/buscar-endereco', methods=['GET'])
-def buscar_endereco():
-    cep = request.args.get('cep')
-    if not cep:
-        return jsonify({"error": "CEP não informado"}), 400
-    
-    url = f"https://viacep.com.br/ws/{cep}/json/"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        endereco = response.json()
-        
-        if "erro" in endereco:
-            return jsonify({"error": "CEP inválido"}), 404
-        
-        return jsonify(endereco)
-    except requests.RequestException as e:
-        return jsonify({"error": str(e)}), 500
