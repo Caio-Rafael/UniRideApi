@@ -2,6 +2,13 @@ from app import db
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash, check_password_hash
+
+carona_passageiros = db.Table(
+    'carona_passageiros',
+    db.Column('carona_id', db.Integer, db.ForeignKey('carona.id'), primary_key=True),
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,6 +17,12 @@ class User(db.Model):
     senha = db.Column(db.String(255), nullable=False)
     tipo = db.Column(db.String(20), nullable=False)
 
+    caronas_participando = db.relationship(
+        'Carona',
+        secondary=carona_passageiros,
+        back_populates='passageiros'
+    )
+
     def as_dict(self):
         return {
             'id': self.id,
@@ -17,7 +30,7 @@ class User(db.Model):
             'email': self.email,
             'tipo': self.tipo,
         }
-
+    
     def set_password(self, password):
         self.senha = generate_password_hash(password)
 
@@ -38,6 +51,28 @@ class Carona(db.Model):
     uf = db.Column(db.String(2), nullable=False)
     descricao = db.Column(db.String(500), nullable=True)
 
+    passageiros = db.relationship(
+        'User',
+        secondary=carona_passageiros,
+        back_populates='caronas_participando'
+    )
+
+    def adicionar_passageiro(self, user):
+        if user not in self.passageiros:
+            self.passageiros.append(user)
+            self.vagas -= 1
+            db.session.commit()
+            return True
+        return False
+
+    def remover_passageiro(self, user):
+        if user in self.passageiros:
+            self.passageiros.remove(user)
+            self.vagas += 1
+            db.session.commit()
+            return True
+        return False
+
     def as_dict(self):
         return {
             "id": self.id,
@@ -50,5 +85,6 @@ class Carona(db.Model):
             "bairro": self.bairro,
             "localidade": self.localidade,
             "uf": self.uf,
-            "descricao": self.descricao
+            "descricao": self.descricao,
+            "passageiros": [user.as_dict() for user in self.passageiros]
         }

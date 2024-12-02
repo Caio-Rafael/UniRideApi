@@ -101,3 +101,32 @@ def login():
         print("Usuário não encontrado!")  
     
     return jsonify({"message": "Email ou senha inválidos!"}), 401
+
+# entrar na carona
+@routes.route('/carona/<int:carona_id>/entrar', methods=['POST'])
+def entrar_na_carona(carona_id):
+    data = request.get_json()
+    user_id = data.get('user_id')
+    user = User.query.get_or_404(user_id)
+    carona = Carona.query.get_or_404(carona_id)
+
+    if carona.vagas > 0:
+        if carona.adicionar_passageiro(user):
+            return jsonify({'message': 'Usuário entrou na carona com sucesso!'}), 200
+        else:
+            return jsonify({'error': 'Usuário já está na carona!'}), 400
+    else:
+        return jsonify({'error': 'Carona sem vagas disponíveis!'}), 400
+
+#sair da carona
+@routes.route('/carona/<int:carona_id>/sair', methods=['POST'])
+def sair_da_carona(carona_id):
+    data = request.get_json()
+    user_id = data.get('user_id')
+    user = User.query.get_or_404(user_id)
+    carona = Carona.query.get_or_404(carona_id)
+
+    if carona.remover_passageiro(user):
+        return jsonify({'message': 'Usuário saiu da carona com sucesso!'}), 200
+    else:
+        return jsonify({'error': 'Usuário não está na carona!'}), 400

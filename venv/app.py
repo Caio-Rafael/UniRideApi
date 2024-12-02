@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Isso permite CORS para todas as rotas e todas as origens
+CORS(app) 
 
 @app.route('/carona', methods=['GET', 'OPTIONS'])
 def carona():
