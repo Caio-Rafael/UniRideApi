@@ -36,6 +36,7 @@ class Carona(db.Model):
     bairro = db.Column(db.String(255), nullable=False) 
     localidade = db.Column(db.String(255), nullable=False) 
     uf = db.Column(db.String(2), nullable=False)
+    descricao = db.Column(db.String(500), nullable=True)
 
     def as_dict(self):
         return {
@@ -48,5 +49,6 @@ class Carona(db.Model):
             "logradouro": self.logradouro,
             "bairro": self.bairro,
             "localidade": self.localidade,
-            "uf": self.uf
+            "uf": self.uf,
+            "descricao": self.descricao
         }
